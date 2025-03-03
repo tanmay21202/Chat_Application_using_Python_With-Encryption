@@ -18,21 +18,20 @@ def broadcast(message):
         client.send(message)
 
 def handle(client):
-    """Handle messages from a client."""
     while True:
         try:
             message = client.recv(1024)
-            print(f"{nicknames[clients.index(client)]} says: {en.dec(message.decode('utf-8'), 2)}")
+            if not message:
+                raise ConnectionResetError  # Handle empty message (client closed)
+            print(f"{nicknames[clients.index(client)]} says {message}")
             broadcast(message)
-        except:
+        except (ConnectionResetError, ConnectionAbortedError):
             index = clients.index(client)
             clients.remove(client)
             client.close()
             nickname = nicknames.pop(index)
-
-            leave_message = f"{nickname} has left the chat."
-            broadcast(en.enc(leave_message, 2).encode('utf-8'))  # Notify others
-
+            print(f"{nickname} disconnected.")
+            broadcast(f"{nickname} has left the chat.".encode('utf-8'))
             break
 
 def receive():
