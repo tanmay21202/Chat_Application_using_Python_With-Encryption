@@ -64,6 +64,7 @@ class Client:
 
     def stop(self):
         self.running = False
+        self.win.quit()
         self.win.destroy()
         self.s.close()
         exit(0)
